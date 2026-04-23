@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block title %}My Orders | Porto eCommerce Clone{% endblock %}
+{% load static %}
+
+{% block content %}
+
+<section class="page-header">
+  <div class="container page-header-inner">
+    <h1 class="page-title">My Orders</h1>
+  </div>
+</section>
+
+<section class="account-layout">
+  <div class="container account-inner">
+
+    {% include "_account_sidebar.html" with active_tab="orders" %}
+
+    <div class="account-main">
+
+      {% if not orders %}
+        <div class="account-block">
+          <p>You have no orders yet.</p>
+          <a class="btn btn-dark" href="{% url 'home' %}">Start shopping</a>
+        </div>
+      {% else %}
+
+        {% for order in orders %}
+          <div class="order-card">
+
+            <!-- top summary row -->
+            <div class="order-top">
+              <div>
+                <div class="order-id">Order #{{ order.id }}</div>
+                <div class="order-meta">
+                  <span>{{ order.created_at|date:"M d, Y" }}</span>
+                  <span class="dot">•</span>
+                  <span>{{ order.currency }}</span>
+                </div>
+              </div>
+
+              <div class="order-right">
+                <span class="status-badge status-{{ order.status }}">
+                  {{ order.get_status_display }}
+                </span>
+                <div class="order-total">
+                  ${{ order.total }}
+                  <small>{{ order.items.count }} item{{ order.items.count|pluralize }}</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- items -->
+            <div class="order-items">
+              {% for item in order.items.all %}
+                <div class="order-item-row">
+                  <div class="oi-left">
+                    <div class="oi-thumb">
+                      {% if item.product.image_main %}
+                        <img src="{{ item.product.image_main.url }}" alt="{{ item.name }}">
+                      {% else %}
+                        <div class="oi-thumb-fallback"></div>
+                      {% endif %}
+                    </div>
+
+                    <div class="oi-info">
+                      <div class="oi-name">{{ item.name }}</div>
+                      <div class="oi-sub">
+                        Unit: ${{ item.unit_price }} &nbsp;•&nbsp; Qty: {{ item.quantity }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="oi-right">
+                    <div class="oi-line-total">${{ item.line_total }}</div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+
+            <!-- shipping snapshot -->
+            <div class="order-bottom">
+              <div class="ship-mini">
+                <div class="ship-title">Shipping</div>
+                {% if order.shipping_line1 %}
+                  <div class="ship-lines">
+                    {{ order.shipping_full_name }}<br>
+                    {{ order.shipping_line1 }}{% if order.shipping_line2 %}, {{ order.shipping_line2 }}{% endif %}<br>
+                    {{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %}
+                    {% if order.shipping_postal_code %} {{ order.shipping_postal_code }}{% endif %}<br>
+                    {{ order.shipping_country }}
+                  </div>
+                {% else %}
+                  <div class="ship-lines muted">No shipping address saved on this order.</div>
+                {% endif %}
+              </div>
+
+              <div class="totals-mini">
+                <div class="tm-row">
+                  <span>Subtotal</span>
+                  <span>${{ order.subtotal }}</span>
+                </div>
+                <div class="tm-row tm-total">
+                  <span>Total</span>
+                  <span>${{ order.total }}</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        {% endfor %}
+
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+
+<style>
+/* Orders card layout */
+.order-card{
+  border:1px solid var(--color-border);
+  background:#fff;
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:14px;
+}
+
+.order-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--color-border);
+}
+
+.order-id{ font-weight:800; font-size:16px; }
+.order-meta{ color:var(--color-muted); font-size:13px; margin-top:2px; }
+.order-meta .dot{ margin:0 8px; }
+
+.order-right{ display:flex; align-items:center; gap:12px; }
+.order-total{ text-align:right; font-weight:700; }
+.order-total small{ display:block; font-weight:400; color:var(--color-muted); margin-top:2px; }
+
+.status-badge{
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:700;
+  border:1px solid transparent;
+  white-space:nowrap;
+}
+.status-pending{ background:#fff8e1; color:#8a6d00; border-color:#ffe8a3; }
+.status-paid{ background:#e8f5e9; color:#1b5e20; border-color:#b7e2bd; }
+.status-cancelled{ background:#ffebee; color:#b71c1c; border-color:#ffb4be; }
+.status-refunded{ background:#e3f2fd; color:#0d47a1; border-color:#b3d7ff; }
+
+/* items list */
+.order-items{ padding-top:12px; }
+.order-item-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:10px 0;
+  border-bottom:1px dashed #eee;
+}
+.order-item-row:last-child{ border-bottom:none; }
+
+.oi-left{ display:flex; align-items:center; gap:12px; min-width:0; }
+.oi-thumb{ width:56px; height:56px; border-radius:8px; overflow:hidden; background:#f2f2f2; flex:0 0 auto; }
+.oi-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.oi-thumb-fallback{ width:100%; height:100%; background:#eaeaea; }
+
+.oi-info{ min-width:0; }
+.oi-name{ font-weight:800; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; }
+.oi-sub{ font-size:13px; color:var(--color-muted); margin-top:2px; }
+
+.oi-right{ text-align:right; }
+.oi-line-total{ font-weight:800; }
+
+/* bottom area */
+.order-bottom{
+  display:grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap:14px;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid var(--color-border);
+}
+
+.ship-title{ font-weight:800; margin-bottom:6px; }
+.ship-lines{ font-size:13px; line-height:1.6; }
+.ship-lines.muted{ color:var(--color-muted); }
+
+.totals-mini{
+  border:1px solid var(--color-border);
+  border-radius:10px;
+  padding:10px 12px;
+  background:#fafafa;
+  height:fit-content;
+}
+.tm-row{ display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; }
+.tm-total{ border-top:1px solid #e4e4e4; padding-top:8px; margin-top:2px; font-weight:800; }
+
+@media (max-width: 991.98px){
+  .order-bottom{ grid-template-columns:1fr; }
+  .oi-name{ max-width:260px; }
+}
+</style>
+
+{% endblock %}

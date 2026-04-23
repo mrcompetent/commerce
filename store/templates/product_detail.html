@@ -1,0 +1,674 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }} | Porto eCommerce Clone{% endblock %}
+
+{% block content %}
+
+<style>
+/* =========================
+   PRODUCT DETAIL – SPACING
+   ========================= */
+
+.product-page {
+    padding: 28px 0 50px;
+}
+
+/* Main 3-column layout */
+.product-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2.1fr) minmax(0, 2.5fr) minmax(0, 1.4fr);
+    column-gap: 40px;
+    align-items: flex-start;
+    margin-top: 22px;
+    margin-bottom: 32px;
+}
+
+.product-detail-gallery {
+    max-width: 520px;
+}
+
+/* Vertical rhythm in the middle column */
+.product-detail-summary > * + * {
+    margin-top: 12px;
+}
+
+.product-detail-summary h2 {
+    margin-bottom: 4px;
+}
+
+.product-detail-summary .product-rating-row {
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+.product-detail-summary .product-price-range {
+    margin-top: 2px;
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+/* Short description block */
+.product-detail-summary .product-short-desc {
+    margin-top: 8px;
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+/* SKU / categories / tags section */
+.product-detail-summary .product-meta {
+    padding-top: 10px;
+    margin-top: 8px;
+    border-top: 1px solid #e6e6e6;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* Color + size area */
+.product-detail-summary .product-options {
+    padding-top: 12px;
+    margin-top: 6px;
+    margin-bottom: 10px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.product-detail-summary .product-options-row + .product-options-row {
+    margin-top: 10px;
+}
+
+/* Quantity + Add to cart row */
+.product-detail-summary .product-purchase-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 16px;
+    margin-bottom: 6px;
+}
+
+.product-detail-summary .qty-control {
+    margin: 0;
+}
+
+/* Share row */
+.product-detail-summary .product-share-row {
+    margin-top: 16px;
+    padding-top: 10px;
+}
+
+/* Sidebar spacing */
+.product-detail-sidebar {
+    max-width: 280px;
+}
+
+.product-detail-sidebar .promo-card {
+    margin-bottom: 20px;
+}
+
+.product-detail-sidebar .featured-list {
+    margin-top: 12px;
+}
+
+.product-detail-sidebar .featured-item + .featured-item {
+    margin-top: 10px;
+}
+
+/* Tabs area */
+.product-detail-tabs {
+    padding-top: 20px;
+    border-top: 1px solid #ededed;
+}
+
+.product-detail-tabs .tab-headers {
+    margin-bottom: 16px;
+}
+
+.product-detail-tabs .tab-content {
+    line-height: 1.7;
+}
+
+/* RESPONSIVE */
+@media (max-width: 991.98px) {
+    .product-detail-layout {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 28px;
+    }
+
+    .product-detail-sidebar {
+        max-width: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .product-page {
+        padding-top: 20px;
+    }
+
+    .product-detail-layout {
+        row-gap: 22px;
+    }
+
+    .product-detail-summary .product-price-range {
+        font-size: 20px;
+    }
+}
+
+/* REMOVE background box from product tabs */
+.product-tabs,
+.product-detail-tabs,
+.tabs-body {
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.product-tabs .tabs-body,
+.product-detail-tabs .tabs-body {
+    padding: 0 !important;
+}
+
+.product-tabs .tab-pane,
+.product-detail-tabs .tab-pane {
+    margin-top: 20px;
+    background: none !important;
+    border: none !important;
+}
+.cart-toast{
+  margin-top: 10px;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.cart-toast-link{
+  margin-left:auto;
+  font-weight:700;
+  text-decoration:underline;
+}
+.cart-toast-x{
+  border:none;
+  background:none;
+  font-size:18px;
+  cursor:pointer;
+  line-height:1;
+}
+
+</style>
+
+<!-- PAGE HEADER / BREADCRUMB -->
+<section class="page-header">
+    <div class="container page-header-inner">
+        <div class="breadcrumb">
+            <a href="{% url 'home' %}">Home</a>
+            {% if product.category.parent %}
+                <span>{{ product.category.parent.name }}</span>
+            {% endif %}
+            <span>{{ product.category.name }}</span>
+        </div>
+        <h1 class="page-title">{{ product.name }}</h1>
+    </div>
+</section>
+
+<!-- PRODUCT MAIN AREA -->
+<section class="product-page">
+    <div class="container">
+
+        <div class="product-detail-layout">
+            <!-- GALLERY -->
+            <div class="product-detail-gallery">
+                <div class="product-gallery">
+                    {% if gallery_images %}
+                        {% with main_image=gallery_images.0 %}
+                            <div class="product-main-image">
+                                <img src="{{ main_image.url }}" alt="{{ product.name }}">
+                                {% if product.is_featured %}
+                                    <span class="badge badge-hot main-badge">HOT</span>
+                                {% endif %}
+                                {% if product.compare_at_price and product.compare_at_price > product.price %}
+                                    <span class="badge badge-sale main-badge-sale">SALE</span>
+                                {% endif %}
+                            </div>
+                        {% endwith %}
+                    {% endif %}
+
+                    <div class="product-thumbs">
+                        {% for image in gallery_images %}
+                            <button class="thumb {% if forloop.first %}active{% endif %}">
+                                <img src="{{ image.url }}" alt="{{ product.name }}">
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- INFO / SUMMARY -->
+            <div class="product-detail-summary">
+                <div id="cart-toast" class="cart-toast" style="display:none;">
+  <span id="cart-toast-text">Successfully added to cart.</span>
+  <a href="{% url 'cart_detail' %}" class="cart-toast-link">View cart</a>
+  <button type="button" class="cart-toast-x" aria-label="Close">×</button>
+</div>
+                <h2 class="product-name">{{ product.name }}</h2>
+
+                <!-- rating row (static for now) -->
+                <div class="product-rating-row">
+                    <div class="product-detail-rating">
+                        ★★★★☆
+                        <span class="review-count">(6 Reviews)</span>
+                    </div>
+                </div>
+
+                <!-- price row -->
+                <div class="product-detail-price">
+                    <span class="price-range product-price-range">
+                        {% if product.compare_at_price and product.compare_at_price > product.price %}
+                            <span class="old-price">${{ product.compare_at_price }}</span>
+                            <span class="new-price">${{ product.price }}</span>
+                        {% else %}
+                            ${{ product.price }}
+                        {% endif %}
+                    </span>
+                </div>
+
+                <!-- short description -->
+                {% if product.short_description %}
+                    <p class="product-short-desc">
+                        {{ product.short_description }}
+                    </p>
+                {% endif %}
+
+                <!-- meta (sku / categories / tags) -->
+                <div class="product-meta">
+                    <ul class="product-meta-list">
+                        <li><span>SKU:</span> {{ product.sku }}</li>
+                        <li><span>Category:</span> {{ product.category.name }}</li>
+                        <li>
+                            <span>Tags:</span>
+                            {% for tag in product.tags.all %}
+                                {{ tag.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                None
+                            {% endfor %}
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- options (color, size) -->
+                <div class="product-options">
+                    {% if product.colors.count %}
+                        <div class="product-options-row option-block">
+                            <span>Color:</span>
+                            <div class="color-swatches small">
+                                {% for color in product.colors.all %}
+                                    <button class="swatch {% if forloop.first %}active{% endif %}"
+                                            style="--swatch: {{ color.hex_code|default:'#cccccc' }};"
+                                            title="{{ color.name }}">
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if product.sizes.count %}
+                        <div class="product-options-row option-block">
+                            <span>Size:</span>
+                            <div class="size-options">
+                                {% for size in product.sizes.all %}
+                                    <button class="size-pill {% if forloop.first %}active{% endif %}">
+                                        {{ size.label }}
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- quantity + add to cart (form wiring later) -->
+               <div class="product-purchase-row product-purchase">
+
+    <!-- ADD TO CART -->
+    <form action="{% url 'add_to_cart' product.slug %}" method="post" class="purchase-form" id="add-to-cart-form">
+        {% csrf_token %}
+        <div class="qty-control">
+            <button type="button" class="qty-minus">-</button>
+            <input type="number" name="quantity" value="1" min="1" class="qty-input">
+            <button type="button" class="qty-plus">+</button>
+        </div>
+        <button class="btn btn-outline-dark add-to-cart-btn" type="submit">
+            Add to Cart
+        </button>
+    </form>
+
+     <button
+      type="button"
+      id="wishlist-btn"
+      class="btn btn-outline-dark"
+      data-in-wishlist="{% if is_in_wishlist %}1{% else %}0{% endif %}"
+      data-add-url="{% url 'add_to_wishlist' product.id %}"
+      data-remove-url="{% url 'remove_from_wishlist' product.id %}"
+  >
+      {% if is_in_wishlist %}Remove from Wishlist{% else %}Add to Wishlist{% endif %}
+  </button>
+
+
+    <!-- BUY NOW / PURCHASE NOW -->
+    
+</div>
+<form action="{% url 'buy_now' product.id %}" method="post" class="purchase-form" id="buy-now-form">
+        {% csrf_token %}
+        <!-- this will stay in sync with the visible qty-input -->
+        <input type="hidden" name="quantity" value="1" class="qty-input-hidden">
+        <button class="btn btn-dark" type="submit">
+            Purchase Now
+        </button>
+    </form>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".qty-control").forEach(control => {
+        const minusBtn = control.querySelector(".qty-minus");
+        const plusBtn = control.querySelector(".qty-plus");
+        const qtyInput = control.querySelector(".qty-input");
+
+        // Find hidden input in SAME .product-purchase-row
+        const parentRow = control.closest(".product-purchase-row");
+        const qtyHidden = parentRow ? parentRow.querySelector(".qty-input-hidden") : null;
+
+        function syncHidden() {
+            if (qtyHidden) qtyHidden.value = qtyInput.value;
+        }
+
+        function clamp() {
+            let val = parseInt(qtyInput.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            qtyInput.value = val;
+            syncHidden();
+        }
+
+        minusBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            let value = parseInt(qtyInput.value, 10) || 1;
+            value = Math.max(1, value - 1);
+            qtyInput.value = value;
+            syncHidden();
+        });
+
+        plusBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            let value = parseInt(qtyInput.value, 10) || 1;
+            value = value + 1;
+            qtyInput.value = value;
+            syncHidden();
+        });
+
+        qtyInput.addEventListener("input", clamp);
+
+        clamp();
+    });
+});
+</script>
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const btn = document.getElementById("wishlist-btn");
+  if (!btn) return;
+
+  const isAuth = {{ request.user.is_authenticated|yesno:"true,false" }};
+  let inWishlist = btn.dataset.inWishlist === "1";
+
+  btn.addEventListener("click", async function () {
+    if (!isAuth) {
+      window.location.href = "{% url 'login' %}?next=" + encodeURIComponent(window.location.pathname);
+      return;
+    }
+
+    const url = inWishlist ? btn.dataset.removeUrl : btn.dataset.addUrl;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+
+    const data = await res.json();
+    if (!data.ok) return;
+
+    if (data.action === "added") {
+      inWishlist = true;
+      btn.dataset.inWishlist = "1";
+      btn.textContent = "Remove from Wishlist";
+    } else if (data.action === "removed") {
+      inWishlist = false;
+      btn.dataset.inWishlist = "0";
+      btn.textContent = "Add to Wishlist";
+    }
+  });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("add-to-cart-form");
+  if (!form) return;
+
+  const toast = document.getElementById("cart-toast");
+  const toastText = document.getElementById("cart-toast-text");
+  const toastClose = toast ? toast.querySelector(".cart-toast-x") : null;
+
+  let reloadTimer = null;
+
+  function showToast(msg){
+    if (!toast) return;
+    toastText.textContent = msg || "Successfully added to cart.";
+    toast.style.display = "flex";
+
+    // auto-reload after 1.5s
+    reloadTimer = setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+  }
+
+  if (toastClose){
+    toastClose.addEventListener("click", () => {
+      toast.style.display = "none";
+      if (reloadTimer) clearTimeout(reloadTimer);
+    });
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const url = form.getAttribute("action");
+    const formData = new FormData(form);
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": form.querySelector('input[name="csrfmiddlewaretoken"]').value,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data || !data.ok) {
+        showToast("Could not add to cart. Try again.");
+        return;
+      }
+
+      // Optional instant badge update before reload
+      const headerCount = document.querySelector(".cart-count");
+      const mobileBadge = document.querySelector(".cart-count-badge");
+      if (headerCount) headerCount.textContent = data.cart_count;
+      if (mobileBadge) mobileBadge.textContent = data.cart_count;
+
+      showToast(data.message);
+
+    } catch (err) {
+      showToast("Network error. Please try again.");
+    }
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const qtyInput = document.querySelector(".qty-input");
+  const hidden = document.querySelector("#buy-now-form .qty-input-hidden");
+
+  if (!qtyInput || !hidden) return;
+
+  function sync() {
+    hidden.value = qtyInput.value || 1;
+  }
+
+  document.querySelectorAll(".qty-minus, .qty-plus").forEach(btn => {
+    btn.addEventListener("click", sync);
+  });
+
+  qtyInput.addEventListener("input", sync);
+  sync();
+});
+</script>
+
+
+
+
+                <!-- share row -->
+                <div class="product-share-row product-share">
+                    <span>Share:</span>
+                    <a href="#">Fb</a>
+                    <a href="#">Tw</a>
+                    <a href="#">In</a>
+                    <a href="#">G+</a>
+                    <a href="#">Mail</a>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDEBAR -->
+            <aside class="product-detail-sidebar product-side">
+                <div class="promo-card side-banner">
+                    <div class="side-banner-text">
+                        <p class="banner-sub">Winter Fashion Trends</p>
+                        <h3>Up to 30% off on Jackets</h3>
+                        <p class="banner-price">
+                            Starting at <span class="price">$199<span class="price-cents">99</span></span>
+                        </p>
+                        <a href="#" class="btn btn-dark btn-sm">Shop Now</a>
+                    </div>
+                    <div class="side-banner-img">
+                        {% if product.category.image %}
+                            <img src="{{ product.category.image.url }}" alt="{{ product.category.name }}">
+                        {% else %}
+                            <img src="https://res.cloudinary.com/dafytulc6/image/upload/v1765275306/cyber-monday-shopping-sales_r2tqag.jpg" alt="">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="featured-list side-featured">
+                    <h4>Featured</h4>
+                    {% for fp in featured_products %}
+                        <div class="featured-item">
+                            {% if fp.image_main %}
+                                <img src="{{ fp.image_main.url }}" alt="{{ fp.name }}">
+                            {% endif %}
+                            <div>
+                                <p>{{ fp.name }}</p>
+                                <span class="new-price">${{ fp.price }}</span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p>No featured products.</p>
+                    {% endfor %}
+                </div>
+            </aside>
+        </div>
+
+        <!-- TABS -->
+        <div class="product-detail-tabs product-tabs">
+            <div class="container-narrow">
+                <div class="tab-headers tabs-nav">
+                    <button class="tab active">Description</button>
+                    <button class="tab">Size Guide</button>
+                    <button class="tab">Additional Information</button>
+                    <button class="tab">Reviews (1)</button>
+                </div>
+                <div class="tab-content tabs-body">
+                    <div class="tab-pane active">
+                        <p>
+                            {% if product.description %}
+                                {{ product.description }}
+                            {% else %}
+                                No additional description for this product yet.
+                            {% endif %}
+                        </p>
+                        <ul class="icon-list">
+                            <li>Any product types that you want – simple, configurable.</li>
+                            <li>Downloadable/digital products, virtual products.</li>
+                            <li>Inventory management with backordered items.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- RELATED PRODUCTS -->
+<section class="section section-gray">
+    <div class="container">
+        <h2 class="section-title">Related Products</h2>
+        <div class="product-grid">
+            {% for rp in related_products %}
+                <article class="product-card">
+                    <div class="product-image">
+                        <a href="{{ rp.get_absolute_url }}">
+                            {% if rp.image_main %}
+                                <img src="{{ rp.image_main.url }}" alt="{{ rp.name }}">
+                            {% endif %}
+                        </a>
+                    </div>
+                    <p class="product-category">Category: {{ rp.category.name }}</p>
+                    <h3 class="product-title">
+                        <a href="{{ rp.get_absolute_url }}">{{ rp.name }}</a>
+                    </h3>
+                    <div class="product-prices">
+                        {% if rp.compare_at_price and rp.compare_at_price > rp.price %}
+                            <span class="old-price">${{ rp.compare_at_price }}</span>
+                        {% endif %}
+                        <span class="new-price">${{ rp.price }}</span>
+                    </div>
+                </article>
+            {% empty %}
+                <p>No related products yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Porto eCommerce Clone{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+<body>
+
+<header class="site-header">
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" />
+    <div class="header-top">
+        <div class="container header-inner">
+
+            <!-- Mobile menu toggle (checkbox hack) -->
+            
+
+            <!-- Logo -->
+            <a href="{% url 'home' %}" class="logo">
+                <span class="logo-main">PORTO</span>
+                <span class="logo-sub">eCommerce</span>
+            </a>
+
+            <!-- Desktop nav -->
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="{% url 'home' %}">Home</a></li>
+
+                    <li class="nav-item">
+                        <a href="{% url 'category_list' %}">Categories</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{% url 'contact' %}">Contact Us</a>
+                    </li>
+
+                </ul>
+            </nav>
+
+            <!-- Header icons -->
+            <div class="header-icons">
+                <a class="icon-btn" aria-label="Search" href="{% url 'search' %}">
+  <span class="icon icon-search"></span>
+</a>
+{% if user.is_authenticated %}
+    <a href="{% url 'dashboard' %}" class="icon-btn account-btn is-logged-in" aria-label="Account">
+        <span class="icon icon-user"></span>
+    </a>
+{% else %}
+    <a href="{% url 'login' %}?next={{ request.path }}" class="icon-btn account-btn" aria-label="Account">
+        <span class="icon icon-user"></span>
+    </a>
+{% endif %}
+    <a href="{% url 'wishlist' %}" class="icon-btn" aria-label="Wishlist">
+        <span class="icon icon-heart"></span>
+    </a>
+                <a href="{% url 'cart_detail' %}" class="icon-btn cart-btn" aria-label="Cart">
+    <span class="icon icon-bag"></span>
+
+    {% if cart_count and cart_count > 0 %}
+        <span class="cart-count">{{ cart_count }}</span>
+    {% endif %}
+</a>
+
+            </div>
+
+            <!-- Hamburger for mobile -->
+            <label for="nav-toggle" class="hamburger" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Mobile slide-out menu -->
+    <div class="mobile-menu">
+        <div class="mobile-menu-inner">
+            <div class="mobile-menu-header">
+                <span>Menu</span>
+                <label for="nav-toggle" class="close-mobile">&times;</label>
+            </div>
+
+            <form class="mobile-search" method="get" action="{% url 'search' %}">
+  <input type="text" name="q" placeholder="Search..." required />
+  <button type="submit" aria-label="Search">
+    <span class="icon icon-search"></span>
+  </button>
+</form>
+
+            <nav class="mobile-nav">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'category_list' %}">Categories</a>
+
+                <div class="mobile-nav-secondary">
+                    <a href="{% url 'dashboard' %}">My Account</a>
+                    <a href="{% url 'contact' %}">Contact Us</a>
+                    <a href="{% url 'wishlist' %}">My Wishlist</a>
+                    <a href="{% url 'cart_detail' %}">Cart</a>
+                </div>
+            </nav>
+
+            <div class="mobile-social">
+                <a href="#">Fb</a>
+                <a href="#">Tw</a>
+                <a href="#">Ig</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backdrop when mobile menu is open -->
+    <label for="nav-toggle" class="backdrop"></label>
+</header>
+
+<!-- Main page content -->
+<main class="page-content">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Desktop footer -->
+<footer class="site-footer">
+    <section class="feature-row">
+        <div class="container feature-row-inner">
+            <div class="feature-item">
+                <div class="feature-icon">🎧</div>
+                <h3>Customer Support</h3>
+                <p>Need assistance? We’re here to help with all your questions.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">💳</div>
+                <h3>Secured Payment</h3>
+                <p>Safe &amp; fast transactions with trusted payment gateways.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">↩️</div>
+                <h3>Free Returns</h3>
+                <p>Easy &amp; free returns on eligible products.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🚚</div>
+                <h3>Free Shipping</h3>
+                <p>On orders over $99 in selected regions.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- <section class="newsletter">
+        <div class="container newsletter-inner">
+            <div class="newsletter-copy">
+                <h3>Subscribe Newsletter</h3>
+                <p>Get all the latest information on Events, Sales and Offers.</p>
+            </div>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Email address..." />
+                <button type="submit" class="btn btn-dark">Subscribe</button>
+            </form>
+        </div>
+    </section> -->
+
+    <section class="footer-main">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <h4>Contact Info</h4>
+                <p><strong>Address:</strong> 1234 Street Name, City, England</p>
+                <p><strong>Phone:</strong> (123) 456-7890</p>
+                <p><strong>Email:</strong> mail@example.com</p>
+                <p><strong>Working Days/Hours:</strong><br>Mon - Sun / 9:00 AM - 8:00 PM</p>
+            </div>
+            <div class="footer-col">
+                <h4>My Account</h4>
+                <a href="{% url 'contact' %}">Contact Us</a>
+                <a href="{% url 'dashboard' %}">My Account</a>
+                <a href="{% url 'orders' %}">Orders History</a>
+            </div>
+            <div class="footer-col">
+                <h4>Main Features</h4>
+                <p>Super Fast HTML Template</p>
+                <p>Fully working Ajax Theme</p>
+                <p>33 Unique Shop Layouts</p>
+                <p>Powerful Admin Panel</p>
+                <p>Mobile &amp; Retina Optimized</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="footer-bottom">
+        <div class="container footer-bottom-inner">
+            <p>Porto eCommerce. © 2024. All Rights Reserved.</p>
+            <div class="payment-logos">
+                <span>VISA</span>
+                <span>PayPal</span>
+                <span>Stripe</span>
+            </div>
+        </div>
+    </section>
+</footer>
+
+<style>
+/* Bottom nav base item */
+.bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: inherit;
+    position: relative;  /* safe, but not strictly required now */
+}
+
+/* icon wrapper for cart (so badge is anchored correctly) */
+.bottom-nav-icon-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* label under the icon */
+.bottom-nav-label {
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+/* cart badge inside bottom nav */
+.cart-count-badge {
+    position: absolute;
+    top: -4px;
+    right: -10px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #e83e8c;   /* same pink you’re using */
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 16px;
+    text-align: center;
+    box-shadow: 0 0 0 2px #fff; /* tiny white ring to separate from bg */
+}
+
+/* Optional: ensure badge doesn’t get huge on larger screens */
+@media (min-width: 768px) {
+    .cart-count-badge {
+        top: -5px;
+        right: -12px;
+    }
+}
+
+</style>
+
+<!-- Mobile bottom navigation -->
+<nav class="bottom-nav">
+    <a href="{% url 'home' %}" class="bottom-nav-item">
+        <span class="icon icon-home"></span>
+        <span>Home</span>
+    </a>
+    <a href="{% url 'category_list' %}" class="bottom-nav-item">
+        <span class="icon icon-menu"></span>
+        <span>Categories</span>
+    </a>
+    <a href="{% url 'wishlist' %}" class="bottom-nav-item">
+        <span class="icon icon-heart"></span>
+        <span>Wishlist</span>
+    </a>
+    {% if user.is_authenticated %}
+    <a href="{% url 'dashboard' %}" class="bottom-nav-item" aria-label="Account">
+        <span class="icon icon-user"></span>
+        <span>Account</span>
+    </a>
+{% else %}
+    <a href="{% url 'login' %}?next={{ request.path }}" class="bottom-nav-item" aria-label="Account">
+        <span class="icon icon-user"></span>
+        <span>Login</span>
+    </a>
+{% endif %}
+    <a href="{% url 'cart_detail' %}" class="bottom-nav-item" aria-label="Cart">
+    <span class="bottom-nav-icon-wrap">
+        <span class="icon icon-bag"></span>
+
+        {% if cart_count and cart_count > 0 %}
+            <span class="cart-count-badge">{{ cart_count }}</span>
+        {% endif %}
+    </span>
+
+    <span class="bottom-nav-label">Cart</span>
+</a>
+
+</nav>
+{% block scripts %}{% endblock %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll("[data-pw-toggle]").forEach((btn) => {
+    const targetSel = btn.getAttribute("data-pw-toggle");
+    const input = document.querySelector(targetSel);
+    if (!input) return;
+
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      const isPw = input.type === "password";
+      input.type = isPw ? "text" : "password";
+      btn.textContent = isPw ? "HIDE" : "SHOW";
+    });
+  });
+});
+</script>
+
+</body>
+</html>

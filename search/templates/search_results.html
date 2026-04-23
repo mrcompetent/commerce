@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search{% if query %}: {{ query }}{% endif %}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <h1 class="page-title">Search</h1>
+
+    <form class="search-page-form" action="{% url 'search' %}" method="get">
+      <input class="input search-input" type="text" name="q" value="{{ query }}" placeholder="Search products..." />
+      <button class="btn btn-dark" type="submit">Search</button>
+    </form>
+
+    {% if query %}
+      <div class="search-meta">
+        <strong>{{ count }}</strong> result{{ count|pluralize }} for “{{ query }}”
+      </div>
+
+      {% if count == 0 and did_you_mean %}
+        <div class="search-suggest">
+          No exact matches. Did you mean
+          <a href="{% url 'search' %}?q={{ did_you_mean|urlencode }}">
+            <strong>{{ did_you_mean }}</strong>
+          </a>?
+        </div>
+      {% endif %}
+
+      {% if count == 0 %}
+        <p class="muted" style="margin-top:10px;">No results found.</p>
+      {% endif %}
+    {% endif %}
+
+    {% if products %}
+      <div class="product-grid product-grid-shop" style="margin-top:18px;">
+        {% for product in products %}
+          <article class="product-card">
+
+            <div class="product-badges">
+              {% if product.is_featured %}
+                <span class="badge badge-hot">HOT</span>
+              {% endif %}
+              {% if product.compare_at_price and product.compare_at_price > product.price %}
+                <span class="badge badge-sale">SALE</span>
+              {% endif %}
+            </div>
+
+            <div class="product-image">
+              <a href="{% url 'product_detail' slug=product.slug %}">
+                {% if product.image_main %}
+                  <img src="{{ product.image_main.url }}" alt="{{ product.name }}">
+                {% else %}
+                  <img src="{% static 'img/placeholder-product.png' %}" alt="{{ product.name }}">
+                {% endif %}
+              </a>
+            </div>
+
+            <p class="product-category">
+              Category: {{ product.category.name }}
+            </p>
+
+            <h3 class="product-title">
+              <a href="{% url 'product_detail' slug=product.slug %}">{{ product.name }}</a>
+            </h3>
+
+            <div class="product-prices">
+              {% if product.compare_at_price and product.compare_at_price > product.price %}
+                <span class="old-price">${{ product.compare_at_price }}</span>
+              {% endif %}
+              <span class="new-price">${{ product.price }}</span>
+            </div>
+
+            <div class="product-foot">
+              {% if product.in_stock %}
+                <span class="stock-badge in">In stock</span>
+              {% else %}
+                <span class="stock-badge out">Out of stock</span>
+              {% endif %}
+              <a class="btn-outline btn-xs" href="{% url 'product_detail' slug=product.slug %}">View</a>
+            </div>
+
+          </article>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<style>
+.search-page-form{display:flex;gap:12px;align-items:center;max-width:520px;}
+.search-page-form .search-input{flex:1;padding:10px 12px;border:1px solid #cfcfcf;border-radius:6px;}
+.search-meta{margin-top:14px;font-size:18px;}
+.search-suggest{margin-top:10px;padding:10px 12px;background:#f6f6f6;border:1px solid #e6e6e6;border-radius:8px;}
+.muted{color:#777;}
+.product-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.stock-badge{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid #ddd;}
+.stock-badge.in{background:#eefbf1;border-color:#bfe7c8;}
+.stock-badge.out{background:#fff1f1;border-color:#f0c2c2;}
+</style>
+{% endblock %}

@@ -1,0 +1,224 @@
+{# This partial is included in desktop sidebar AND mobile drawer #}
+
+<form method="get" class="filters-form">
+  {# keep sort when filtering #}
+  {% if current_sort %}
+    <input type="hidden" name="sort" value="{{ current_sort }}">
+  {% endif %}
+
+  <div class="filters-block">
+
+    <!-- PRICE -->
+    <div class="filter-group">
+      <div class="filter-header">
+        <span>Price</span>
+        <button class="filter-toggle" type="button">−</button>
+      </div>
+
+      <div class="filter-body">
+        <div class="price-grid">
+          <div class="form-field">
+            <label>Min</label>
+            <input
+              type="number"
+              name="min_price"
+              class="input"
+              placeholder="{{ min_price_bound }}"
+              value="{{ min_price_value }}"
+              min="0"
+            >
+          </div>
+
+          <div class="form-field">
+            <label>Max</label>
+            <input
+              type="number"
+              name="max_price"
+              class="input"
+              placeholder="{{ max_price_bound }}"
+              value="{{ max_price_value }}"
+              min="0"
+            >
+          </div>
+        </div>
+
+        <button class="btn btn-dark btn-sm w-100" type="submit" style="margin-top:10px;">
+          Apply Price
+        </button>
+      </div>
+    </div>
+
+    <!-- COLOR -->
+<div class="filter-group">
+  <div class="filter-header">
+    <span>Color</span>
+    <button class="filter-toggle" type="button">−</button>
+  </div>
+
+  <div class="filter-body color-swatches">
+    {% for color in available_colors %}
+      <label class="color-swatch {% if color.id|stringformat:'s' in selected_colors %}is-active{% endif %}"
+             style="--swatch: {{ color.hex_code|default:'#cccccc' }};">
+        <input
+          type="checkbox"
+          name="color"
+          value="{{ color.id }}"
+          {% if color.id|stringformat:"s" in selected_colors %}checked{% endif %}
+        >
+        <span class="color-swatch-label">
+          {{ color.name }}
+          <span class="count">({{ color.product_count }})</span>
+        </span>
+      </label>
+    {% empty %}
+      <p class="muted">No colors available.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- SIZE -->
+<div class="filter-group">
+  <div class="filter-header">
+    <span>Size</span>
+    <button class="filter-toggle" type="button">−</button>
+  </div>
+
+  <div class="filter-body size-chips">
+    {% for size in available_sizes %}
+      <label class="size-chip {% if size.id|stringformat:'s' in selected_sizes %}is-active{% endif %}">
+        <input
+          type="checkbox"
+          name="size"
+          value="{{ size.id }}"
+          {% if size.id|stringformat:"s" in selected_sizes %}checked{% endif %}
+        >
+        <span>{{ size.label }} <span class="count">({{ size.product_count }})</span></span>
+      </label>
+    {% empty %}
+      <p class="muted">No sizes available.</p>
+    {% endfor %}
+  </div>
+</div>
+
+
+    <!-- APPLY / CLEAR -->
+    <div class="filter-actions">
+      <button class="btn btn-dark btn-sm w-100 apply-filters-btn" type="submit">
+        Apply Filters
+      </button>
+
+      <a class="btn-outline btn-sm w-100" style="margin-top:10px;"
+         href="{% url 'category_detail' slug=category.slug %}">
+        Clear All
+      </a>
+    </div>
+
+  </div>
+</form>
+
+<style>
+/* minimal helper styling so inputs + labels look correct with your existing theme */
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.color-swatches{display:flex;flex-wrap:wrap;gap:10px;}
+.color-swatch{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--color-border,#e6e6e6);border-radius:10px;background:#fff;cursor:pointer;}
+.color-swatch input{display:none;}
+.color-swatch::before{content:"";width:16px;height:16px;border-radius:999px;background:var(--swatch,#ccc);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);}
+.color-swatch.is-active{border-color:#111;box-shadow:0 0 0 2px rgba(0,0,0,.06);}
+.size-chips{display:flex;flex-wrap:wrap;gap:10px;}
+.size-chip{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border:1px solid var(--color-border,#e6e6e6);border-radius:999px;background:#fff;cursor:pointer;}
+.size-chip input{display:none;}
+.size-chip.is-active{border-color:#111;background:#f7f7f7;}
+.filter-group.is-collapsed .filter-body{display:none;}
+/* ---------- Filter selection highlight (Color + Size) ---------- */
+
+/* make label clickable area */
+.color-swatch,
+.size-chip {
+  cursor: pointer;
+  user-select: none;
+  transition: transform .06s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+}
+
+/* hide checkbox but keep it accessible */
+.color-swatch input,
+.size-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* hover feedback */
+.color-swatch:hover,
+.size-chip:hover {
+  transform: translateY(-1px);
+}
+
+/* SELECTED STATE (works even without JS) */
+.color-swatch input:checked + .color-swatch-label,
+.size-chip input:checked + span {
+  /* just makes text slightly bolder */
+  font-weight: 700;
+}
+
+/* if you use .is-active class (your template already does) */
+.color-swatch.is-active {
+  border-color: #111 !important;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.08);
+}
+
+.size-chip.is-active {
+  border-color: #111 !important;
+  background: #f4f4f4;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.06);
+}
+
+/* show a small check mark on selected colors */
+.color-swatch.is-active::after {
+  content: "✓";
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: .85;
+}
+
+/* optional: selected sizes pop a bit */
+.size-chip.is-active {
+  transform: translateY(-1px);
+}
+
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  function syncActiveFromChecked(scope){
+    scope.querySelectorAll(".color-swatch").forEach((label) => {
+      const cb = label.querySelector('input[type="checkbox"]');
+      if (!cb) return;
+      label.classList.toggle("is-active", cb.checked);
+    });
+
+    scope.querySelectorAll(".size-chip").forEach((label) => {
+      const cb = label.querySelector('input[type="checkbox"]');
+      if (!cb) return;
+      label.classList.toggle("is-active", cb.checked);
+    });
+  }
+
+  // run once on page load (so highlights match URL params)
+  syncActiveFromChecked(document);
+
+  // instant highlight when user clicks checkbox/label
+  document.addEventListener("change", function(e){
+    const cb = e.target;
+    if (!(cb && cb.matches('input[type="checkbox"][name="color"], input[type="checkbox"][name="size"]'))) return;
+
+    const label = cb.closest(".color-swatch, .size-chip");
+    if (!label) return;
+
+    label.classList.toggle("is-active", cb.checked);
+  });
+
+});
+</script>
+

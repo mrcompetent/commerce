@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% block title %}My Wishlist | Porto eCommerce Clone{% endblock %}
+{% load static %}
+{% block content %}
+
+<style>
+/* ======================
+   WISHLIST PAGE
+   ====================== */
+
+.wishlist-page {
+    padding: 32px 0 60px;
+    background-color: #f7f7f7;
+}
+
+.wishlist-page .page-title {
+    font-size: 26px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 22px;
+}
+
+.wishlist-card {
+    background-color: #fafafa;
+    border: 1px solid var(--color-border);
+    padding: 0;
+}
+
+/* table */
+
+.wishlist-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.wishlist-table thead {
+    background-color: #f3f3f3;
+}
+
+.wishlist-table th,
+.wishlist-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+
+.wishlist-table th {
+    font-weight: 600;
+    text-align: left;
+}
+
+.col-price,
+.col-status,
+.col-actions {
+    white-space: nowrap;
+}
+
+/* product cell */
+
+.wishlist-product-cell {
+    min-width: 260px;
+}
+
+.wishlist-product {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.wishlist-thumb {
+    width: 80px;
+    height: 80px;
+    border-radius: 2px;
+    overflow: hidden;
+    background-color: #eee;
+}
+
+.wishlist-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.wishlist-info h3 {
+    margin: 0 0 4px;
+    font-size: 14px;
+}
+
+.wishlist-meta {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-muted);
+}
+
+/* price & status */
+
+.wishlist-price .new-price {
+    font-weight: 500;
+}
+
+.wishlist-status .status {
+    display: inline-block;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 999px;
+}
+
+.wishlist-status .status.in-stock {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.wishlist-status .status.out-of-stock {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+/* actions */
+
+.wishlist-actions {
+    text-align: right;
+}
+
+.wishlist-actions .btn-xs {
+    padding: 7px 14px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+}
+
+.wishlist-remove {
+    border: none;
+    background: none;
+    margin-left: 10px;
+    font-size: 13px;
+    color: #e53935;
+    cursor: pointer;
+}
+
+/* empty state */
+
+.wishlist-empty {
+    padding: 40px 24px;
+    text-align: center;
+}
+
+.wishlist-empty p {
+    margin-bottom: 14px;
+    font-size: 15px;
+}
+
+/* responsive */
+
+@media (max-width: 575.98px) {
+    .wishlist-table thead {
+        display: none;
+    }
+
+    .wishlist-table,
+    .wishlist-table tbody,
+    .wishlist-table tr,
+    .wishlist-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .wishlist-table tr {
+        border-bottom: 1px solid var(--color-border);
+        padding: 12px 12px 16px;
+    }
+
+    .wishlist-table td {
+        border-bottom: none;
+        padding: 4px 0;
+    }
+
+    .wishlist-product-cell {
+        margin-bottom: 10px;
+    }
+
+    .wishlist-actions {
+        text-align: left;
+        margin-top: 8px;
+    }
+}
+.wishlist-product-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.wishlist-product-link:hover h3 {
+    text-decoration: underline;
+}
+
+</style>
+
+<section class="wishlist-page">
+    <div class="container">
+        <h1 class="page-title">My Wishlist</h1>
+
+        <div class="wishlist-card">
+
+            {% if items %}
+            <table class="wishlist-table">
+                <thead>
+                    <tr>
+                        <th class="col-product">Product</th>
+                        <th class="col-price">Price</th>
+                        <th class="col-status">Status</th>
+                        <th class="col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for item in items %}
+                    <tr>
+                        <td class="wishlist-product-cell">
+                            <a href="{{ item.product.get_absolute_url }}" class="wishlist-product-link">
+                            <div class="wishlist-product">
+                                <div class="wishlist-thumb">
+                                    {% if item.product.image_main %}
+                                        <img src="{{ item.product.image_main.url }}"
+                                             alt="{{ item.product.name }}">
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="wishlist-info">
+                                    <h3>{{ item.product.name }}</h3>
+                                    <p class="wishlist-meta">
+                                        Category: {{ item.product.category.name }}
+                                    </p>
+                                </div>
+                            </div>
+                            </a>
+                        </td>
+
+                        <td class="wishlist-price">
+                            <span class="new-price">
+                                {{ item.product.price }}
+                            </span>
+                        </td>
+
+                        <td class="wishlist-status">
+                            {% if item.product.in_stock %}
+                                <span class="status in-stock">In Stock</span>
+                            {% else %}
+                                <span class="status out-of-stock">Out of Stock</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="wishlist-actions">
+
+                            {% if item.product.in_stock %}
+                            <form action="{% url 'wishlist_add_to_cart' item.product.id %}"
+                                  method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="btn btn-dark btn-xs" type="submit">
+                                    Add to Cart
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <form action="{% url 'remove_from_wishlist' item.product.id %}"
+                                  method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="wishlist-remove" type="submit">
+                                    Remove
+                                </button>
+                            </form>
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+            {% else %}
+            <div class="wishlist-empty">
+                <p>Your wishlist is empty.</p>
+                <a href="{% url 'home' %}" class="btn btn-outline-dark btn-sm">
+                    Continue Shopping
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

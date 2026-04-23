@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Order Confirmation</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#f6f6f6;padding:20px}
+    .card{max-width:680px;margin:0 auto;background:#fff;border:1px solid #e7e7e7;border-radius:10px;overflow:hidden}
+    .header{padding:18px 22px;background:#111;color:#fff}
+    .header h1{margin:0;font-size:18px;letter-spacing:.02em}
+    .content{padding:22px}
+    .meta{color:#555;font-size:14px;line-height:1.6;margin:10px 0 18px}
+    .pill{display:inline-block;background:#e9f7ef;color:#1e7d3a;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .section{margin-top:18px}
+    .section h2{font-size:15px;margin:0 0 10px;color:#222}
+    .addr{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:14px;font-size:14px;line-height:1.6;color:#333}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 0;border-bottom:1px solid #eee;font-size:14px}
+    th{text-align:left;color:#777;font-weight:600}
+    td{text-align:left;color:#222}
+    .right{text-align:right}
+    .totals{margin-top:10px}
+    .totals .row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
+    .totals .row strong{color:#111}
+    .footer{padding:16px 22px;background:#fafafa;border-top:1px solid #eee;color:#777;font-size:12px;text-align:center}
+    a{color:#111}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>Thanks for your order, {{ user.username }}!</h1>
+    </div>
+
+    <div class="content">
+      <div class="meta">
+        <div><strong>Order:</strong> #{{ order.id }} &nbsp; <span class="pill">PAID</span></div>
+        <div><strong>Date:</strong> {{ order.created_at|date:"M d, Y" }}</div>
+        <div><strong>Total:</strong> {{ order.currency }} {{ order.total }}</div>
+      </div>
+
+      <div class="section">
+        <h2>Shipping Address</h2>
+        <div class="addr">
+          <strong>{{ order.shipping_full_name }}</strong><br>
+          {{ order.shipping_line1 }}{% if order.shipping_line2 %}, {{ order.shipping_line2 }}{% endif %}<br>
+          {{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %}
+          {% if order.shipping_postal_code %} {{ order.shipping_postal_code }}{% endif %}<br>
+          {{ order.shipping_country }}<br>
+          {% if order.shipping_phone %}<strong>Phone:</strong> {{ order.shipping_phone }}{% endif %}
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Order Items</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th class="right">Unit</th>
+              <th class="right">Qty</th>
+              <th class="right">Line Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+              <tr>
+                <td>{{ item.name }}</td>
+                <td class="right">{{ order.currency }} {{ item.unit_price }}</td>
+                <td class="right">{{ item.quantity }}</td>
+                <td class="right">{{ order.currency }} {{ item.line_total }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="totals">
+          <div class="row"><span>Subtotal</span><span>{{ order.currency }} {{ order.subtotal }}</span></div>
+          <div class="row"><strong>Total</strong><strong>{{ order.currency }} {{ order.total }}</strong></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <p style="color:#666;font-size:13px;line-height:1.6;margin:14px 0 0;">
+          If you have any questions, reply to this email and we’ll help you out.
+        </p>
+      </div>
+    </div>
+
+    <div class="footer">
+      © {{ year }} {{ brand_name }} • This is an automated receipt.
+    </div>
+  </div>
+</body>
+</html>

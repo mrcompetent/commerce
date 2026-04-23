@@ -1,0 +1,12 @@
+{# checkout_success.html #}
+{% extends "base.html" %}
+{% block title %}Payment Successful{% endblock %}
+{% block content %}
+<section class="checkout-result">
+    <div class="container">
+        <h1>Thank you!</h1>
+        <p>Your payment was successful and your order is being processed.</p>
+        <a href="{% url 'home' %}" class="btn btn-dark">Back to shop</a>
+    </div>
+</section>
+{% endblock %}

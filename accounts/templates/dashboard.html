@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% block title %}My Account | Porto eCommerce Clone{% endblock %}
+
+{% block content %}
+
+<style>
+/* Compact recent orders */
+.recent-orders-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.recent-order-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:12px 12px;
+  border:1px solid var(--color-border);
+  background:#fff;
+  border-radius:10px;
+}
+
+.ro-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.ro-thumb{
+  width:44px;
+  height:44px;
+  border-radius:8px;
+  overflow:hidden;
+  background:#f2f2f2;
+  flex:0 0 auto;
+}
+.ro-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.ro-thumb-fallback{ width:100%; height:100%; background:#eaeaea; }
+
+.ro-info{ min-width:0; }
+.ro-topline{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+}
+.ro-id{ font-weight:800; }
+.ro-date{ color:var(--color-muted); font-size:13px; }
+
+.ro-items{
+  margin-top:3px;
+  font-size:13px;
+  color:var(--color-muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:520px;
+}
+.ro-item{ color:#222; }
+.ro-items .sep{ margin:0 6px; color:#bbb; }
+.ro-more{ color:var(--color-muted); }
+
+.ro-right{
+  text-align:right;
+  flex:0 0 auto;
+}
+.ro-total{
+  font-weight:800;
+  margin-top:4px;
+}
+
+.ro-status{
+  display:inline-block;
+  font-size:12px;
+  padding:5px 9px;
+  border-radius:999px;
+  font-weight:700;
+  border:1px solid transparent;
+  white-space:nowrap;
+}
+
+.status-pending{ background:#fff8e1; color:#8a6d00; border-color:#ffe8a3; }
+.status-paid{ background:#e8f5e9; color:#1b5e20; border-color:#b7e2bd; }
+.status-cancelled{ background:#ffebee; color:#b71c1c; border-color:#ffb4be; }
+.status-refunded{ background:#e3f2fd; color:#0d47a1; border-color:#b3d7ff; }
+
+@media (max-width: 991.98px){
+  .ro-items{ max-width:220px; }
+}
+
+</style>
+
+<section class="page-header">
+    <div class="container page-header-inner">
+        <h1 class="page-title">My Account</h1>
+    </div>
+</section>
+
+<section class="account-layout">
+    <div class="container account-inner">
+
+        {% with current=request.resolver_match.url_name %}
+        <!-- Sidebar -->
+        <aside class="account-sidebar">
+            <div class="account-user">
+                <div class="avatar-circle">
+                    {{ request.user.username|first|upper }}{{ request.user.username|slice:"1:2"|upper }}
+                </div>
+                <div>
+                    <p class="user-name">
+                        Hello, {{ request.user.username }}
+                    </p>
+                    {% if member_since_year %}
+                        <span class="user-meta">member since {{ member_since_year }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <nav class="account-nav">
+                <a href="{% url 'dashboard' %}"
+                   class="{% if current == 'dashboard' %}active{% endif %}">Dashboard</a>
+
+                <a href="{% url 'orders' %}"
+                   class="{% if current == 'orders' or current == 'order_detail' %}active{% endif %}">
+                    Orders
+                </a>
+
+                <a href="{% url 'wishlist' %}"
+                   class="{% if current == 'wishlist' %}active{% endif %}">
+                    Wishlist
+                </a>
+
+                <a href="{% url 'addresses' %}"
+                   class="{% if current == 'addresses' %}active{% endif %}">
+                    Addresses
+                </a>
+
+                <!-- you can later add a dedicated account-details view -->
+                <a href="{% url 'change_password' %}">Account Details</a>
+
+                <a href="{% url 'logout' %}">Logout</a>
+            </nav>
+        </aside>
+        {% endwith %}
+
+        <!-- Main -->
+        <div class="account-main">
+            <!-- Stats -->
+            <div class="account-stats">
+                <div class="stat-card">
+                    <p class="stat-label">Total Orders</p>
+                    <p class="stat-value">{{ total_orders }}</p>
+                    <p class="stat-hint">
+                        {% if total_orders %}
+                            {{ total_orders }} total orders placed
+                        {% else %}
+                            No orders yet
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="stat-card">
+                    <p class="stat-label">Active Orders</p>
+                    <p class="stat-value">{{ active_orders }}</p>
+                    <p class="stat-hint">Processing / Paid / Shipping</p>
+                </div>
+                <div class="stat-card">
+                    <p class="stat-label">Wishlist Items</p>
+                    <p class="stat-value">{{ wishlist_count }}</p>
+                    <p class="stat-hint">
+                        <a href="{% url 'wishlist' %}">View wishlist</a>
+                    </p>
+                </div>
+                <div class="stat-card">
+                    <p class="stat-label">Store Credit</p>
+                    <p class="stat-value">$0.00</p>
+                    <p class="stat-hint">Available to spend</p>
+                </div>
+            </div>
+
+            <!-- Recent orders -->
+            <div class="account-block">
+  <div class="account-block-header">
+    <h2>Recent Orders</h2>
+    <a href="{% url 'orders' %}" class="link-muted">View all</a>
+  </div>
+
+  {% if recent_orders %}
+    <div class="recent-orders-list">
+      {% for order in recent_orders %}
+        <div class="recent-order-row">
+
+          <div class="ro-left">
+            <!-- thumb: first item product image -->
+            {% with first_item=order.items.all.0 %}
+              <div class="ro-thumb">
+                {% if first_item and first_item.product.image_main %}
+                  <img src="{{ first_item.product.image_main.url }}" alt="{{ first_item.name }}">
+                {% else %}
+                  <div class="ro-thumb-fallback"></div>
+                {% endif %}
+              </div>
+            {% endwith %}
+
+            <div class="ro-info">
+              <div class="ro-topline">
+                <span class="ro-id">#{{ forloop.counter }}</span>
+                <span class="ro-date">{{ order.created_at|date:"M d, Y" }}</span>
+              </div>
+
+              <div class="ro-items">
+                {% for item in order.items.all|slice:":2" %}
+                  <span class="ro-item">{{ item.name }}</span>{% if not forloop.last %}<span class="sep">•</span>{% endif %}
+                {% endfor %}
+
+                {% if order.items.count > 2 %}
+                  <span class="sep">•</span>
+                  <span class="ro-more">+{{ order.items.count|add:"-2" }} more</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="ro-right">
+            <span class="ro-status status-{{ order.status }}">{{ order.get_status_display }}</span>
+            <div class="ro-total">${{ order.total }}</div>
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="margin-top:12px;">No orders yet.</p>
+  {% endif %}
+</div>
+
+
+            <!-- Wishlist snapshot -->
+            <div class="account-block">
+                <div class="account-block-header">
+                    <h2>Wishlist Snapshot</h2>
+                    <a href="{% url 'wishlist' %}">Go to wishlist</a>
+                </div>
+
+                {% if wishlist_preview %}
+                    <div class="wishlist-mini-grid">
+                        {% for wish in wishlist_preview %}
+                            <article class="mini-wish">
+                                {% if wish.product.image_main %}
+                                    <img src="{{ wish.product.image_main.url }}"
+                                         alt="{{ wish.product.name }}">
+                                {% endif %}
+                                <div>
+                                    <p>{{ wish.product.name }}</p>
+                                    <span class="new-price">
+                                        {{ wish.product.price }}
+                                    </span>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>Your wishlist is empty.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

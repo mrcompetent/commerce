@@ -1,0 +1,11 @@
+New Contact Message
+
+Name: {{ name }}
+Email: {{ email }}
+Subject: {{ subject }}
+
+Message:
+{{ message }}
+
+---
+Sent from the Contact Us page

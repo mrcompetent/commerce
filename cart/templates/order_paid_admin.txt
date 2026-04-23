@@ -1,0 +1,22 @@
+NEW PAID ORDER: #{{ order.id }}
+
+User: {{ user.username }} ({{ user.email }})
+Date: {{ order.created_at|date:"M d, Y H:i" }}
+Total: {{ order.currency }} {{ order.total }}
+Stripe session: {{ order.stripe_session_id }}
+Payment intent: {{ order.stripe_payment_intent }}
+
+Shipping:
+{{ order.shipping_full_name }}
+{{ order.shipping_line1 }}{% if order.shipping_line2 %}, {{ order.shipping_line2 }}{% endif %}
+{{ order.shipping_city }}{% if order.shipping_state %}, {{ order.shipping_state }}{% endif %}{% if order.shipping_postal_code %} {{ order.shipping_postal_code }}{% endif %}
+{{ order.shipping_country }}
+{% if order.shipping_phone %}Phone: {{ order.shipping_phone }}{% endif %}
+
+Items:
+{% for item in items %}
+- {{ item.name }} | Unit: {{ order.currency }} {{ item.unit_price }} | Qty: {{ item.quantity }} | Line: {{ order.currency }} {{ item.line_total }}
+{% endfor %}
+
+Subtotal: {{ order.currency }} {{ order.subtotal }}
+Total: {{ order.currency }} {{ order.total }}

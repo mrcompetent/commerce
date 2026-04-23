@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Register | Porto eCommerce Clone{% endblock %}
+{% block content %}
+
+<section class="auth-section">
+  <div class="container auth-inner two-column">
+    <div class="auth-card">
+      <h1 class="auth-title">Create Account</h1>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-field">
+          <label>Username</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </div>
+
+        <div class="form-field">
+          <label>Email address</label>
+          {{ form.email }}
+          {{ form.email.errors }}
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label>Password</label>
+            {{ form.password1 }}
+            {{ form.password1.errors }}
+            <button type="button" class="pw-toggle" data-target="#register-password">Show</button>
+          </div>
+          <div class="form-field">
+            <label>Confirm password</label>
+            {{ form.password2 }}
+            {{ form.password2.errors }}
+            <button type="button" class="pw-toggle" data-target="#register-password2">Show</button>
+          </div>
+        </div>
+
+        <button class="btn btn-dark auth-btn" type="submit">Register</button>
+      </form>
+
+      <p class="auth-meta">
+        Already have an account?
+        <a href="{% url 'login' %}">Sign in</a>
+      </p>
+    </div>
+  </div>
+</section>
+<style>
+.pw-wrap{ display:flex; align-items:center; gap:10px; }
+.pw-toggle{
+  border:1px solid var(--color-border);
+  background:#fff;
+  padding:8px 10px;
+  border-radius:8px;
+  font-size:12px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".pw-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const input = document.querySelector(btn.dataset.target);
+      if (!input) return;
+
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      btn.textContent = show ? "Hide" : "Show";
+    });
+  });
+});
+</script>
+
+
+{% endblock %}

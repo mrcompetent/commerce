@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Verify Email{% endblock %}
+{% block content %}
+
+<section class="auth-section">
+  <div class="container auth-inner">
+    <div class="auth-card">
+      <h1 class="auth-title">Verify your email</h1>
+      <p class="auth-meta" style="margin-bottom:14px;">
+        We sent a 6-digit code to <strong>{{ email }}</strong>.
+      </p>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-field">
+          <label>Verification code</label>
+          {{ form.code }}
+          {{ form.code.errors }}
+        </div>
+
+        <button class="btn btn-dark auth-btn" type="submit">Verify</button>
+      </form>
+
+      <p class="auth-meta" style="margin-top:12px;">
+        Didn’t get it?
+        <a href="{% url 'resend_verify_email' %}">Resend code</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

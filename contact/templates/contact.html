@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+  <div class="container page-header-inner">
+    <h1 class="page-title">Contact Us</h1>
+    <p class="page-subtitle">We’d love to hear from you</p>
+  </div>
+</section>
+
+<section class="contact-page">
+  <div class="container">
+    <div class="contact-card">
+
+      <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-field">
+          <label>Name</label>
+          {{ form.name }}
+          {{ form.name.errors }}
+        </div>
+
+        <div class="form-field">
+          <label>Email</label>
+          {{ form.email }}
+          {{ form.email.errors }}
+        </div>
+
+        <div class="form-field">
+          <label>Subject</label>
+          {{ form.subject }}
+          {{ form.subject.errors }}
+        </div>
+
+        <div class="form-field">
+          <label>Message</label>
+          {{ form.message }}
+          {{ form.message.errors }}
+        </div>
+
+        <button class="btn btn-dark btn-block" type="submit">
+          Send Message
+        </button>
+      </form>
+
+    </div>
+  </div>
+</section>
+
+<style>
+.contact-page {
+  padding: 40px 0 60px;
+}
+.contact-card {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  padding: 24px;
+  border-radius: 12px;
+}
+.form-field {
+  margin-bottom: 14px;
+}
+.form-field label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+.btn-block {
+  width: 100%;
+}
+</style>
+
+{% endblock %}

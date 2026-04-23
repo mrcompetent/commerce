@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>New Contact Message</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f6f6f6;
+            padding: 20px;
+        }
+        .email-card {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: auto;
+            border: 1px solid #e5e5e5;
+        }
+        h2 {
+            margin-top: 0;
+            color: #222;
+        }
+        .meta {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        .message-box {
+            background: #fafafa;
+            border: 1px solid #ddd;
+            padding: 16px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+        }
+        .footer {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-card">
+        <h2>New Contact Message</h2>
+
+        <div class="meta">
+            <strong>Name:</strong> {{ name }}<br>
+            <strong>Email:</strong> {{ email }}<br>
+            <strong>Subject:</strong> {{ subject }}
+        </div>
+
+        <div class="message-box">
+            {{ message }}
+        </div>
+
+        <div class="footer">
+            Sent from the Contact Us page
+        </div>
+    </div>
+</body>
+</html>

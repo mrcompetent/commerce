@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Categories | Porto eCommerce Clone{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="container page-header-inner">
+    <h1 class="page-title">Categories</h1>
+  </div>
+</section>
+
+<section class="section section-gray">
+  <div class="container">
+
+    {% if categories %}
+      <div class="category-grid">
+        {% for category in categories %}
+          <a href="{{ category.get_absolute_url }}" class="category-card">
+            <div class="category-image">
+              {% if category.image %}
+                {# CloudinaryField: safest display is using the value directly #}
+                <img src="{{ category.image.url }}" alt="{{ category.name }}">
+              {% else %}
+                <div class="category-placeholder">
+                  {{ category.name|slice:":1"|upper }}
+                </div>
+              {% endif %}
+            </div>
+
+            <h3 class="category-title">{{ category.name }}</h3>
+
+            {% if category.children.all %}
+              <p class="category-sub">
+                {% for child in category.children.all %}
+                  {{ child.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </p>
+            {% endif %}
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>No categories available.</p>
+    {% endif %}
+
+  </div>
+</section>
+
+<style>
+.category-grid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap:22px;
+}
+.category-card{
+  display:block;
+  text-align:center;
+  background:#fff;
+  border:1px solid #eee;
+  padding:18px;
+  border-radius:6px;
+  transition: all .2s ease;
+}
+.category-card:hover{
+  transform: translateY(-3px);
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+}
+.category-image{
+  height:160px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:12px;
+}
+.category-image img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+.category-placeholder{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  background:#f2f2f2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:36px;
+  font-weight:700;
+  color:#777;
+}
+.category-title{
+  font-size:15px;
+  margin:0;
+}
+.category-sub{
+  margin:8px 0 0;
+  font-size:12px;
+  color:#777;
+  line-height:1.4;
+}
+@media (max-width: 991.98px){
+  .category-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 575.98px){
+  .category-grid{ grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}

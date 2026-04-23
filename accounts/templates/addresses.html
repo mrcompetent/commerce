@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block title %}My Addresses | Porto eCommerce Clone{% endblock %}
+{% load static %}
+{% block content %}
+
+<section class="page-header">
+  <div class="container page-header-inner">
+    <h1 class="page-title">Addresses</h1>
+  </div>
+</section>
+
+<section class="account-layout">
+  <div class="container account-inner">
+
+    <!-- Sidebar -->
+    <aside class="account-sidebar">
+      <div class="account-user">
+        <div class="avatar-circle">
+          {{ request.user.username|slice:":2"|upper }}
+        </div>
+        <div>
+          <p class="user-name">Hello, {{ request.user.username }}</p>
+          <span class="user-meta">Manage your addresses</span>
+        </div>
+      </div>
+
+      <nav class="account-nav">
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'orders' %}">Orders</a>
+        <a href="{% url 'wishlist' %}">Wishlist</a>
+        <a href="{% url 'addresses' %}" class="active">Addresses</a>
+        <a href="{% url 'change_password' %}">Account Details</a>
+        <a href="{% url 'logout' %}">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <div class="account-main">
+
+      <div class="account-block">
+        <div class="account-block-header">
+          <h2>Saved Addresses</h2>
+        </div>
+
+        {% if addresses %}
+          <div class="addresses-grid">
+            {% for address in addresses %}
+              <div class="address-card {% if address.is_default %}is-default{% endif %}">
+                <div class="address-card-top">
+                  <div>
+                    <p class="address-name">
+                      {{ address.full_name }}
+                      {% if address.is_default %}
+                        <span class="badge-status completed">Default</span>
+                      {% endif %}
+                    </p>
+                    <p class="address-lines">
+                      {{ address.line1 }}{% if address.line2 %}, {{ address.line2 }}{% endif %}<br>
+                      {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
+                      {{ address.country }}
+                    </p>
+                    <p class="address-meta">
+                      <span>Phone:</span> {{ address.phone }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="address-actions">
+                  {% if not address.is_default %}
+                    <form method="post" action="{% url 'set_default_address' address.id %}">
+                      {% csrf_token %}
+                      <button class="btn btn-outline-dark btn-sm" type="submit">Set Default</button>
+                    </form>
+                  {% endif %}
+
+                  <form method="post" action="{% url 'delete_address' address.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p style="margin-top:12px;">You have no saved addresses yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="account-block">
+        <div class="account-block-header">
+          <h2>Add New Address</h2>
+        </div>
+
+        <div class="form-card">
+          <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label>Full name</label>
+                {{ form.full_name }}
+                {{ form.full_name.errors }}
+              </div>
+              <div class="form-field">
+                <label>Phone</label>
+                {{ form.phone }}
+                {{ form.phone.errors }}
+              </div>
+            </div>
+
+            <div class="form-field">
+  <label>Address line 1</label>
+  {{ form.line1 }}
+  {{ form.line1.errors }}
+</div>
+
+<div class="form-field">
+  <label>Address line 2 (optional)</label>
+  {{ form.line2 }}
+  {{ form.line2.errors }}
+</div>
+
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label>City</label>
+                {{ form.city }}
+                {{ form.city.errors }}
+              </div>
+              <div class="form-field">
+                <label>State</label>
+                {{ form.state }}
+                {{ form.state.errors }}
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label>Postal code</label>
+                {{ form.postal_code }}
+                {{ form.postal_code.errors }}
+              </div>
+              <div class="form-field">
+                <label>Country</label>
+                {{ form.country }}
+                {{ form.country.errors }}
+              </div>
+            </div>
+
+            {{ form.address_type }}
+
+            <label class="checkbox" style="margin-top:10px;">
+              {{ form.is_default }}
+              <span>Set as default address</span>
+            </label>
+
+            <button class="btn btn-dark" type="submit" style="margin-top:10px;">
+              Save Address
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+/* small page css to make it look good */
+.addresses-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap:14px;
+}
+.address-card{
+  border:1px solid var(--color-border);
+  background:#fff;
+  padding:14px;
+  border-radius:10px;
+}
+.address-card.is-default{
+  border-color:#222;
+}
+.address-name{
+  font-weight:700;
+  margin:0 0 6px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.address-lines{
+  margin:0 0 8px;
+  color:var(--color-muted);
+  line-height:1.6;
+}
+.address-meta{
+  margin:0;
+  font-size:13px;
+}
+.address-actions{
+  margin-top:12px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.form-card{
+  border:1px solid var(--color-border);
+  background:#fff;
+  padding:16px;
+  border-radius:10px;
+}
+@media (max-width: 991.98px){
+  .addresses-grid{ grid-template-columns: 1fr; }
+}
+</style>
+
+{% endblock %}

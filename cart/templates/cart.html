@@ -1,0 +1,330 @@
+{# cart/templates/cart/cart.html #}
+{% extends "base.html" %}
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+
+<style>
+.cart-page {
+    padding: 32px 0 60px;
+}
+
+.cart-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.2fr);
+    gap: 40px;
+    align-items: flex-start;
+    margin-top: 24px;
+}
+
+/* items list */
+.cart-items {
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 18px 20px;
+}
+
+.cart-header-row {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #999;
+    margin-bottom: 12px;
+}
+
+.cart-row {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px solid #eee;
+}
+
+.cart-product-info {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.cart-product-info img {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 2px;
+}
+
+.cart-product-info h3 {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.cart-price,
+.cart-subtotal {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.cart-subtotal {
+    text-align: right;
+}
+
+.cart-qty {
+    text-align: left;
+}
+
+.qty-form {
+    display: inline-flex;
+    align-items: center;
+}
+
+.qty-control {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ddd;
+}
+
+.qty-control button {
+    width: 28px;
+    height: 32px;
+    border: none;
+    background: #f8f8f8;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.qty-control input[type="number"] {
+    width: 48px;
+    border: none;
+    text-align: center;
+    height: 32px;
+    font-size: 14px;
+    -moz-appearance: textfield;
+}
+
+.qty-control input::-webkit-outer-spin-button,
+.qty-control input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.link-danger {
+    border: none;
+    background: none;
+    padding: 0;
+    margin-top: 4px;
+    color: #d33;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-xs {
+    font-size: 11px;
+    padding: 4px 10px;
+}
+
+/* summary card */
+.cart-summary {
+    border: 1px solid #eee;
+    padding: 18px 20px;
+    border-radius: 4px;
+    background: #fafafa;
+}
+
+.cart-summary h2 {
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.totals-row-total {
+    border-top: 1px solid #e4e4e4;
+    padding-top: 8px;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+/* RESPONSIVE */
+@media (max-width: 991.98px) {
+    .cart-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .cart-page {
+        padding-top: 24px;
+    }
+
+    .cart-items {
+        padding: 14px 12px;
+    }
+
+    .cart-header-row {
+        display: none; /* hide desktop header labels */
+    }
+
+    .cart-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    .cart-product-info img {
+        width: 90px;
+        height: 90px;
+    }
+
+    .cart-subtotal {
+        text-align: left;
+    }
+
+    .cart-summary {
+        margin-top: 12px;
+    }
+}
+
+.address-mini{
+  border:1px solid #eee;
+  background:#fff;
+  padding:12px;
+  border-radius:6px;
+  font-size:13px;
+  line-height:1.6;
+}
+.wishlist-product-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.wishlist-product-link:hover h3 {
+    text-decoration: underline;
+}
+
+</style>
+
+<section class="cart-page">
+    <div class="container">
+        <h1 class="page-title">Shopping Cart</h1>
+
+        {% if not cart or cart.item_count == 0 %}
+            <p>Your cart is empty.</p>
+            <a href="{% url 'home' %}" class="btn btn-dark">Continue Shopping</a>
+        {% else %}
+            <div class="cart-layout">
+                <!-- LEFT: items -->
+                <div class="cart-items">
+                    <div class="cart-header-row">
+                        <span>Product</span>
+                        <span>Price</span>
+                        <span>Quantity</span>
+                        <span>Subtotal</span>
+                    </div>
+
+                    {% for item in cart.items_qs %}
+                        <div class="cart-row">
+                            <a href="{{ item.product.get_absolute_url }}" class="wishlist-product-link">
+                            <div class="cart-product-info">
+                                {% if item.product.image_main %}
+                                    <img src="{{ item.product.image_main.url }}" alt="{{ item.product.name }}">
+                                {% endif %}
+                                <div>
+                                    <h3>{{ item.product.name }}</h3>
+                                    <form action="{% url 'cart_item_remove' item.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="link-danger">Remove</button>
+                                    </form>
+                                </div>
+                            </div>
+                            </a>
+
+                            <div class="cart-price">
+                                ${{ item.unit_price }}
+                            </div>
+
+                            <div class="cart-qty">
+                                <form action="{% url 'cart_item_update' item.id %}" method="post" class="qty-form">
+                                    {% csrf_token %}
+                                    <div class="qty-control">
+                                        <button type="submit" name="action" value="dec">−</button>
+                                        <input type="number" name="quantity" min="1" value="{{ item.quantity }}">
+                                        <button type="submit" name="action" value="inc">+</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="cart-subtotal">
+                                ${{ item.total_price }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- RIGHT: summary -->
+                <aside class="cart-summary">
+                    <h2>Cart Totals</h2>
+                    <div class="totals-row">
+                        <span>Subtotal</span>
+                        <span>${{ cart.total_amount }}</span>
+                    </div>
+                    <div class="totals-row">
+                        <span>Shipping</span>
+                        <span>Calculated at checkout</span>
+                    </div>
+                    <div class="totals-row totals-row-total">
+                        <span>Total</span>
+                        <span>${{ cart.total_amount }}</span>
+                    </div>
+
+                    <form action="{% url 'checkout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-dark btn-block">
+                            Proceed to Checkout
+                        </button>
+                    </form>
+                    <hr style="margin:14px 0; border:none; border-top:1px solid #e4e4e4;">
+
+<h3 style="font-size:14px; margin:0 0 10px;">Shipping Address</h3>
+
+{% if default_address %}
+  <div class="address-mini">
+    <strong>{{ default_address.full_name }}</strong><br>
+    {{ default_address.line1 }}{% if default_address.line2 %}, {{ default_address.line2 }}{% endif %}<br>
+    {{ default_address.city }}{% if default_address.state %}, {{ default_address.state }}{% endif %}
+    {% if default_address.postal_code %} {{ default_address.postal_code }}{% endif %}<br>
+    {{ default_address.country }}<br>
+    {% if default_address.phone %}Phone: {{ default_address.phone }}{% endif %}
+  </div>
+
+  <a href="{% url 'addresses' %}" class="btn btn-outline-dark btn-block" style="margin-top:10px;">
+    Change Address
+  </a>
+{% else %}
+  <p style="margin:0 0 10px;">No default address yet.</p>
+  <a href="{% url 'addresses' %}" class="btn btn-outline-dark btn-block">
+    Add Shipping Address
+  </a>
+{% endif %}
+
+                </aside>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

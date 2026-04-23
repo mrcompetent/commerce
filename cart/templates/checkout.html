@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<section class="checkout-page">
+    <div class="container">
+        <h1 class="page-title">Checkout</h1>
+
+        {% if not cart or cart.item_count == 0 %}
+            <p>Your cart is empty.</p>
+            <a href="{% url 'home' %}" class="btn btn-dark">Back to shop</a>
+        {% else %}
+            <div class="checkout-layout">
+                <div class="checkout-summary">
+                    <h2>Order Summary</h2>
+                    <ul class="checkout-list">
+                        {% for item in cart.items_qs %}
+                            <li>
+                                <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                                <span>${{ item.total_price }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="checkout-total">
+                        <span>Total:</span>
+                        <span>${{ cart.total_amount }}</span>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-dark btn-block">
+                            Pay with Card (Stripe)
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="container">
+        <h2>Shipping Address</h2>
+
+{% if default_address %}
+    <div class="address-card">
+        <strong>{{ default_address.full_name }}</strong><br>
+        {{ default_address.line1 }}{% if default_address.line2 %}, {{ default_address.line2 }}{% endif %}<br>
+        {{ default_address.city }}{% if default_address.state %}, {{ default_address.state }}{% endif %}
+        {% if default_address.postal_code %} {{ default_address.postal_code }}{% endif %}<br>
+        {{ default_address.country }}<br>
+        {% if default_address.phone %}Phone: {{ default_address.phone }}{% endif %}
+    </div>
+    <p class="mt-2">
+        <a href="{% url 'addresses' %}">Change address</a>
+    </p>
+{% else %}
+    <p>No default address yet.</p>
+    <a href="{% url 'addresses' %}" class="btn btn-outline-dark">
+        Add shipping address
+    </a>
+{% endif %}
+    </div>
+</section>
+{% endblock %}
